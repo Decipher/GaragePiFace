@@ -1,4 +1,5 @@
 flask==0.10.1
 flask-bootstrap==3.2.0.1
 flask-login==0.2.11
+flask-wtf==0.9.5
 pifacedigitalio==3.0.5
