@@ -1,1 +1,5 @@
+*.egg-info
 .idea
+build
+dist
+config.yaml

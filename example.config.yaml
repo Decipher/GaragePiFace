@@ -1,0 +1,6 @@
+---
+
+mqtt_topic: home-assistant/garage-door/set
+server:
+  address: iot.eclipse.org
+  port: 1883

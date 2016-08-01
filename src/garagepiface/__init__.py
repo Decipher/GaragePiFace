@@ -1,37 +1,35 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template, request
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.wtf import Form
-from wtforms import SubmitField
 from time import sleep
+
+import paho.mqtt.client as mqtt
 import pifacedigitalio
+import yaml
 
 pifacedigital = pifacedigitalio.PiFaceDigital()
 
-app = Flask('garagepiface')
-Bootstrap(app)
+config = open('config.yaml', 'r')
+config = yaml.load(config)
 
 
-class ButtonsForm(Form):
-	submit_button = SubmitField('Submit Form')
+def on_connect(client, userdata, flasg, rc):
+    client.subscribe(config['mqtt_topic'])
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-	if request.method == 'POST':
-		pifacedigital.output_pins[0].toggle()
-		sleep(0.5)
-		pifacedigital.output_pins[0].toggle()
-
-	form = ButtonsForm()
-	return render_template('index.html', form=form)
+def on_message(client, userdata, msg):
+    if (msg.payload == 'GARAGE_BUTTON'):
+        pifacedigital.output_pins[0].toggle()
+        sleep(0.5)
+        pifacedigital.output_pins[0].toggle()
 
 
 def main():
-	app.config['SECRET_KEY'] = 'devkey'
-	app.run(host='0.0.0.0', port=80)
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(config['server']['address'], config['server']['port'], 60)
+    client.loop_forever()
 
 
 if __name__ == "__main__":
-	main()
+    main()
